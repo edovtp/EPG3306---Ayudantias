@@ -181,10 +181,20 @@ n_tipo1 <- nrow(hosp_tipo1)
 p0_hat <- mean(hosp_tipo0$rodilla)
 p1_hat <- mean(hosp_tipo1$rodilla)
 
-p0_hat
-p1_hat
+# p0_hat distribuye aprox. Normal(p0, p0 * (1 - p0)/n0)
+# p1_hat distribuye aprox. Normal(p1, p1 * (1 - p1)/n1)
 
-aux <- (n_tipo0 - 1) * var(hosp_tipo0$rodilla) + (n_tipo1 - 1) * var(hosp_tipo1$rodilla)
-aux/(n_tipo0 + n_tipo1 - 2)
+# H0: p1 = p0 vs p1 != p0
 
-mean(hospitales$rodilla) * (1 - mean(hospitales$rodilla))
+alpha <- 0.05
+
+p_hat <- var(hospitales$rodilla)
+sp2 <- p_hat * (1 - p_hat)
+z0 <- abs(p0_hat - p1_hat) / sqrt(sp2 * (1/n_tipo0 + 1/n_tipo1))
+
+z0 >= qnorm(1 - alpha/2)
+
+valor_p <- 1 - pnorm(z0)
+valor_p
+
+## No se rechaza H0
