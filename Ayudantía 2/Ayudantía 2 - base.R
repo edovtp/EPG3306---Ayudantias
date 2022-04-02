@@ -14,8 +14,8 @@ tasa_media <- mean(delitos_mcs_2021$tasa[delitos_mcs_2021$region != 'Metropolita
 tasa_media
 
 ## c)
-muestra_1 <- c(1773.7, 1602.2, 1569.9, 1702.2,
-               1685.6, 2050.3, 1765.6, 1495)
+muestra_1 <- c(1773.7, 1602.2, 1866.8, 1987.8,
+               1765.6, 1511.5, 1476, 1467.8)
 
 qqnorm(y = muestra_1, main = "QQ-plot muestra de tasas de delitos",
        pch = 16, xlab = "Cuantiles teóricos", ylab = "Cuantiles muestrales")
