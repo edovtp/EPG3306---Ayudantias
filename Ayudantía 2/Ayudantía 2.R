@@ -50,7 +50,7 @@ n <- length(muestra_1)
 
 t0 <- (mean(muestra_1) - tasa_media)/(sd(muestra_1)/sqrt(n))
 t <- qt(alpha, df = n - 1)
-t0 <= t
+t0 <= t 
 
 valor_p <- pt(t0, df = n - 1)
 
@@ -188,7 +188,7 @@ p1_hat <- mean(hosp_tipo1$rodilla)
 
 alpha <- 0.05
 
-p_hat <- var(hospitales$rodilla)
+p_hat <- mean(hospitales$rodilla)
 sp2 <- p_hat * (1 - p_hat)
 z0 <- abs(p0_hat - p1_hat) / sqrt(sp2 * (1/n_tipo0 + 1/n_tipo1))
 
