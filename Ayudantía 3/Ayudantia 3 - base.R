@@ -96,25 +96,20 @@ abline(v = 17, col = 'blue', lwd = 2, lty = 'dashed')
 ### I.- Test exacto
 n <- nrow(aurora)
 alpha <- 0.05
-k_m1 <- qbinom(p = alpha, size = 20, prob = 1/2)
-k_m1
-
-# Restamos uno por la naturaleza discreta de la variable aleatoria
-k <- k_m1 - 1
-k
+k <- qbinom(p = 1 - alpha, size = 20, prob = 1/2)
 
 # Comprobamos que no nos pasamos del alpha
-pbinom(q = k, size = n, prob = 1/2)
-pbinom(q = k_m1, size = n, prob = 1/2)
+pbinom(q = k, size = n, prob = 1/2, lower.tail = FALSE)
+pbinom(q = k - 1, size = n, prob = 1/2, lower.tail = FALSE)
 
 # Vemos si rechazamos H0
-sum(web < 17)
-sum(web < 17) <= k # Se rechaza H0
+sum(aurora$web >= 17)
+sum(aurora$web >= 17) <= k # Se rechaza H0
 
-pbinom(sum(web < 17), n, 1/2)
+pbinom(sum(aurora$web >= 17), n, 1/2)
 
 ### II.- Aproximación normal (H1: p < 1/2)
-z0 <- (mean(web < 17) - 1/2)/(sqrt(1/(4*n)))
+z0 <- (mean(aurora$web >= 17) - 1/2)/(sqrt(1/(4*n)))
 pnorm(z0)
 
 ### III.- DESAFÍO: ver el test de Wilcoxon para la hipótesis en este caso

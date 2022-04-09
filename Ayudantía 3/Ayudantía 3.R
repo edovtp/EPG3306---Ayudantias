@@ -122,7 +122,7 @@ sum(aurora$web >= 17) >= k # Se rechaza H0
 pbinom(sum(aurora$web >= 17), n, 1/2)
 
 ### II.- Aproximación normal (H1: p < 1/2)
-z0 <- (mean(aurora$web < 17) - 1/2)/(sqrt(1/(4*n)))
+z0 <- (mean(aurora$web >= 17) - 1/2)/(sqrt(1/(4*n)))
 pnorm(z0)
 
 ### III.- DESAFÍO: ver el test de Wilcoxon para la hipótesis en este caso
