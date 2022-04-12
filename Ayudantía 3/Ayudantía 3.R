@@ -18,14 +18,14 @@ nrow(eu_index_91)
 ## Precios
 autoplot(eu_index_91, columns = c('DAX'), col = 'tomato') +
   labs(title = 'Precios de cierre por día - índice DAX',
-       subtitle = 'Año 1991',
+       subtitle = 'Año 1995',
        x = 'fecha', y = 'precio (USD)')
 
 ## Retornos (netos)
 retornos <- diff(eu_index_91)/eu_index_91[-nrow(eu_index_91), ]
 autoplot(retornos, columns = c('DAX'), col = 'tomato') +
   labs(title = 'Retornos por día - índice DAX',
-       subtitle = 'Año 1991',
+       subtitle = 'Año 1995',
        x = 'fecha', y = 'precio (USD)')
 
 ## Log-retornos
@@ -80,6 +80,7 @@ k1 ; W ; k2
 valor_p <- psignrank(W, n) * 2
 valor_p
 
+# Verificamos que no nos pasamos del alpha
 psignrank(k1, n) + psignrank(k2, n, lower.tail = FALSE)
 
 # Usando wilcox.test
@@ -119,11 +120,12 @@ pbinom(q = k - 1, size = n, prob = 1/2, lower.tail = FALSE)
 sum(aurora$web >= 17)
 sum(aurora$web >= 17) >= k # Se rechaza H0
 
-pbinom(sum(aurora$web >= 17), n, 1/2)
+valor.p = pbinom(sum(aurora$web >= 17), n, 1/2, lower.tail = FALSE) 
+valor.p
 
 ### II.- Aproximación normal (H1: p < 1/2)
 z0 <- (mean(aurora$web >= 17) - 1/2)/(sqrt(1/(4*n)))
-pnorm(z0)
+pnorm(z0, lower.tail = FALSE)
 
 ### III.- DESAFÍO: ver el test de Wilcoxon para la hipótesis en este caso
 
@@ -166,6 +168,7 @@ wilcox.test(x = aurora$web,
             conf.level = 1 - alpha)
 
 2 * pwilcox(q = U1 - 1, m = m, n = n, lower.tail = FALSE)
+valor_p
 
 ## Aproximación normal
 

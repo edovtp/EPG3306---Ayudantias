@@ -69,6 +69,7 @@ k1 ; W ; k2
 valor_p <- psignrank(W, n) * 2
 valor_p
 
+# Verificamos que no nos pasamos del alpha
 psignrank(k1, n) + psignrank(k2, n, lower.tail = FALSE)
 
 # Usando wilcox.test
@@ -104,13 +105,14 @@ pbinom(q = k - 1, size = n, prob = 1/2, lower.tail = FALSE)
 
 # Vemos si rechazamos H0
 sum(aurora$web >= 17)
-sum(aurora$web >= 17) <= k # Se rechaza H0
+sum(aurora$web >= 17) >= k # Se rechaza H0
 
-pbinom(sum(aurora$web >= 17), n, 1/2)
+valor_p <- pbinom(sum(aurora$web >= 17), n, 1/2, lower.tail = FALSE)
+valor_p
 
 ### II.- Aproximación normal (H1: p < 1/2)
 z0 <- (mean(aurora$web >= 17) - 1/2)/(sqrt(1/(4*n)))
-pnorm(z0)
+pnorm(z0, lower.tail = FALSE)
 
 ### III.- DESAFÍO: ver el test de Wilcoxon para la hipótesis en este caso
 
