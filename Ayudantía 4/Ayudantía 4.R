@@ -1,9 +1,14 @@
-# Ejercicio 1 ---------------------------------------------------------------------------------
+library(tidyverse)
+library(rio)
+library(corrplot)
+
+
+# Ejercicio 2 -----------------------------------------------------------------------
 
 ## a) INICIO DEL ANÁLISIS
 
-### Cargamos los datos
-datos_pobreza <- read.table(file = 'Datasets/poverty.txt', header = TRUE)
+### Carga de datos
+datos_pobreza <- rio::import('Datasets/poverty.txt')
 head(datos_pobreza)
 
 ### Identificación de variables
@@ -11,15 +16,12 @@ x <- datos_pobreza$PovPct
 y <- datos_pobreza$Brth15to17
 
 ### Gráfico de dispersión
-plot(datos_pobreza$PovPct, datos_pobreza$Brth15to17, 
-     main = 'Asociación entre Tasa de Natalidad (15 a 17 años) y Tasa de Pobreza',
-     col = "royalblue4",
-     las = 1,
-     xlab = "Tasa de Pobreza",
-     ylab = "Tasa de Natalidad (15-17) años",
-     pch = 20,
-     cex = 1.5,
-     bty = "n")
+ggplot(data = datos_pobreza) +
+  geom_point(mapping = aes(x = PovPct, y = Brth15to17),
+             size = 2, col = 'royalblue4') +
+  labs(x = 'Tasa de pobreza', y = 'Tasa de Natalidad (15-17) años',
+       title = 'Asociación entre Tasa de Natalidad (15 a 17 años) y Tasa de Pobreza') +
+  theme_minimal()
 
 ## b) CORRELACIÓN
 
@@ -81,25 +83,20 @@ summary(modelo_p2)
 x_california <- x[datos_pobreza$Location == "California"]
 hat.y_california = coef(modelo_p2)[1] + coef(modelo_p2)[2] * x_california
 
-plot(datos_pobreza$PovPct, datos_pobreza$Brth15to17, 
-     main = 'Asociación entre Tasa de Natalidad (15 a 17 años) y Tasa de Pobreza',
-     col = "royalblue4",
-     las = 1,
-     xlab = "Tasa de Pobreza",
-     ylab = "Tasa de Natalidad (15-17) años",
-     pch = 20,
-     cex = 1.5,
-     bty = "n")
+ggplot(data = datos_pobreza) +
+  geom_point(mapping = aes(x = PovPct, y = Brth15to17),
+             size = 2, col = 'royalblue4') +
+  labs(x = 'Tasa de pobreza', y = 'Tasa de Natalidad (15-17) años',
+       title = 'Asociación entre Tasa de Natalidad (15 a 17 años) y Tasa de Pobreza') +
+  theme_minimal() +
+  geom_abline(intercept = coef(modelo_p2)[1], slope = coef(modelo_p2)[2],
+              col = 'tomato', lwd = 1.3)
 
-abline(modelo_p2, col = "red", lwd = 2.5)
-
-# Ejercicio 2 ---------------------------------------------------------------------------------
-
-library(corrplot)
+# Ejercicio 2 -----------------------------------------------------------------------
 
 ## a) ANÁLISIS INICIAL
 
-datos_grasas <- read.csv('Datasets/grasas.csv')
+datos_grasas <- rio::import('Datasets/grasas.csv')
 head(datos_grasas)
 
 ### Revisamos la estructura de los datos
@@ -117,19 +114,17 @@ corrplot::corrplot(matriz_corr_grasas, method = "color")
 # summary(lm(data2$Undernourished ~ data2$Obesity))
 # abline(lm(data2$Undernourished ~ data2$Obesity))
 
-plot(datos_grasas$Animal.Products, datos_grasas$Meat, 
-     main = "Consumo de carne y grasa de productos de origen animal",
-     col = "royalblue4",
-     las = 1,
-     xlab = "Tasa de ingesta de grasa de productos de origen animal",
-     ylab = "Tasa de consumo de carne",
-     pch = 20,
-     cex = 1.3,
-     bty = "n")
+ggplot(data = datos_grasas) +
+  geom_point(mapping = aes(x = `Animal Products`, y = Meat),
+             size = 2, col = 'royalblue4') +
+  labs(x = 'Tasa de ingesta de grasa de productos de origen animal',
+       y = 'Tasa de consumo de carne',
+       title = 'Consumo de carne y grasa de productos de origen animal') +
+  theme_minimal()
 
 ## b) ESCOGER UN MODELO
 
-x <- datos_grasas$Animal.Products
+x <- datos_grasas$`Animal Products`
 y <- datos_grasas$Meat
 
 # y = beta0 + beta1*x + e, con e_i ~ Normal(0, sigma2)
@@ -152,17 +147,16 @@ beta.hat
 # (un porcentaje), en promedio, la tasa de consumo de carne aumenta en 1.519
 # unidades (porcentaje).
 
-plot(datos_grasas$Animal.Products, datos_grasas$Meat, 
-     main = "Consumo de carne y grasa de productos de origen animal",
-     col = "royalblue4",
-     las = 1,
-     xlab = "Tasa de ingesta de grasa de productos de origen animal",
-     ylab = "Tasa de consumo de carne",
-     pch = 20,
-     cex = 1.3,
-     bty = "n")
-
-abline(modelo_p3, col = 'red', lwd = 1.8)
+ggplot(data = datos_grasas) +
+  geom_point(mapping = aes(x = `Animal Products`, y = Meat),
+             size = 2, col = 'royalblue4') +
+  labs(x = 'Tasa de ingesta de grasa de productos de origen animal',
+       y = 'Tasa de consumo de carne',
+       title = 'Consumo de carne y grasa de productos de origen animal') +
+  theme_minimal() +
+  geom_abline(intercept = coef(modelo_p3)[1],
+              slope = coef(modelo_p3)[2],
+              col = 'salmon', lwd = 1.3)
 
 ## d) TEST F
 
