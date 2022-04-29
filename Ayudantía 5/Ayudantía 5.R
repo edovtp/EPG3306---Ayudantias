@@ -79,8 +79,10 @@ datos_aux <- tibble(peso = datos_kung$weight,
 # 1. Outliers
 ggplot(data = datos_aux, mapping = aes(x = peso, y = residuos_stu)) +
   geom_point() +
-  geom_hline(yintercept = qt(0.975, df = n - 3)) +
-  geom_hline(yintercept = qt(0.025, df = n - 3))
+  geom_hline(yintercept = qt(0.975, df = n - 3), col = 'red') +
+  geom_hline(yintercept = qt(0.025, df = n - 3), col = 'red') +
+  labs(x = 'Peso', y = 'Residuos studentizados',
+       title = 'Presencia de outliers')
 
 # 2. Media lineal
 ggplot(data = datos_aux) +
@@ -120,7 +122,7 @@ ggplot(data = datos_aux,
   geom_qq() +
   geom_qq_line(col = 'red', lty = 'dashed', lwd = 1.5) +
   labs(title = 'Supuesto de normalidad',
-       x = 'Residuos estandarizados', y = 'Densidad')
+       x = 'Cuantiles teóricos', y = 'Cuantiles muestrales')
 
 ## Test de Shapiro-Wilk
 ## H0: La muestra es normal estándar
@@ -173,13 +175,21 @@ resid_kung1 <- residuals(modelo_kung2)
 std_resid_kung1 <- rstandard(modelo_kung2)
 stu_resid_kung1 <- rstudent(modelo_kung2)
 
-# 1. Media lineal
 datos_aux <- tibble(peso = datos_kung_adultos$weight,
                     ajustados = ajustados_kung1,
                     residuos = resid_kung1,
                     residuos_est = std_resid_kung1,
                     residuos_stu = stu_resid_kung1)
 
+# 1. Outliers
+ggplot(data = datos_aux, mapping = aes(x = peso, y = residuos_stu)) +
+  geom_point() +
+  geom_hline(yintercept = qt(0.975, df = n - 3), col = 'red') +
+  geom_hline(yintercept = qt(0.025, df = n - 3), col = 'red') +
+  labs(x = 'Peso', y = 'Residuos studentizados',
+       title = 'Presencia de outliers')
+
+# 2. Media lineal
 ggplot(data = datos_aux) +
   geom_point(mapping = aes(x = peso, y = residuos)) +
   geom_hline(yintercept = 0, col = 'red',
@@ -194,7 +204,7 @@ ggplot(data = datos_aux) +
   labs(title = 'Supuesto de media lineal',
        x = 'Valor ajustado', y = 'Residuo')
 
-# 2. Homocedasticidad
+# 3. Homocedasticidad
 ggplot(data = datos_aux) +
   geom_point(mapping = aes(x = ajustados, y = residuos_est)) +
   labs(title = 'Supuesto de homocedasticidad',
@@ -204,7 +214,7 @@ ggplot(data = datos_aux) +
 ## H0: Varianza constante
 lmtest::bptest(modelo_kung2)
 
-# 3. Normalidad
+# 4. Normalidad
 ggplot(data = datos_aux,
        mapping = aes(x = residuos_est, y = ..density..)) +
   geom_histogram(fill = 'turquoise', col = 'black') +
@@ -217,7 +227,7 @@ ggplot(data = datos_aux,
   geom_qq() +
   geom_qq_line(col = 'red', lty = 'dashed', lwd = 1.5) +
   labs(title = 'Supuesto de normalidad',
-       x = 'Residuos estandarizados', y = 'Densidad')
+       x = 'Cuantiles teóricos', y = 'Cuantiles muestrales')
 
 ## Test de Shapiro-Wilk
 ## H0: La muestra es normal estándar
@@ -226,6 +236,7 @@ shapiro.test(std_resid_kung1)
 # Gráficos que entrega R
 plot(modelo_kung2)
 ggplot2::autoplot(modelo_kung2)
+
 
 ## d.2) Usando el logaritmo del peso
 datos_kung_log <- datos_kung %>% 
@@ -267,19 +278,27 @@ resid_kung1 <- residuals(modelo_kung3)
 std_resid_kung1 <- rstandard(modelo_kung3)
 stu_resid_kung1 <- rstudent(modelo_kung3)
 
-# 1. Media lineal
 datos_aux <- tibble(logpeso = datos_kung_log$logweight,
                     ajustados = ajustados_kung1,
                     residuos = resid_kung1,
                     residuos_est = std_resid_kung1,
                     residuos_stu = stu_resid_kung1)
 
+# 1. Outliers
+ggplot(data = datos_aux, mapping = aes(x = logpeso, y = residuos_stu)) +
+  geom_point() +
+  geom_hline(yintercept = qt(0.975, df = n - 3), col = 'red') +
+  geom_hline(yintercept = qt(0.025, df = n - 3), col = 'red') +
+  labs(x = 'log peso', y = 'Residuos studentizados',
+       title = 'Presencia de outliers')
+
+# 2. Media lineal
 ggplot(data = datos_aux) +
   geom_point(mapping = aes(x = logpeso, y = residuos)) +
   geom_hline(yintercept = 0, col = 'red',
              lty = 'dashed', lwd = 1.3) +
   labs(title = 'Supuesto de media lineal',
-       x = 'Peso', y = 'Residuo')
+       x = 'log peso', y = 'Residuo')
 
 ggplot(data = datos_aux) +
   geom_point(mapping = aes(x = ajustados, y = residuos)) +
@@ -288,7 +307,7 @@ ggplot(data = datos_aux) +
   labs(title = 'Supuesto de media lineal',
        x = 'Valor ajustado', y = 'Residuo')
 
-# 2. Homocedasticidad
+# 3. Homocedasticidad
 ggplot(data = datos_aux) +
   geom_point(mapping = aes(x = ajustados, y = residuos_est)) +
   labs(title = 'Supuesto de homocedasticidad',
@@ -298,7 +317,7 @@ ggplot(data = datos_aux) +
 ## H0: Varianza constante
 lmtest::bptest(modelo_kung3)
 
-# 3. Normalidad
+# 4. Normalidad
 ggplot(data = datos_aux,
        mapping = aes(x = residuos_est, y = ..density..)) +
   geom_histogram(fill = 'turquoise', col = 'black') +
@@ -311,7 +330,7 @@ ggplot(data = datos_aux,
   geom_qq() +
   geom_qq_line(col = 'red', lty = 'dashed', lwd = 1.5) +
   labs(title = 'Supuesto de normalidad',
-       x = 'Residuos estandarizados', y = 'Densidad')
+       x = 'Cuantiles teóricos', y = 'Cuantiles muestrales')
 
 ## Test de Shapiro-Wilk
 ## H0: La muestra es normal estándar
