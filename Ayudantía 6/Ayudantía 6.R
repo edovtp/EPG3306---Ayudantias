@@ -1,6 +1,7 @@
 library(tidyverse)
 library(GGally)
 library(ggfortify)
+library(lmtest)
 
 
 # Pregunta 1 ------------------------------------------------------------------------
@@ -178,7 +179,7 @@ anova(lm_backward_fat, lm_backward_mass)
 
 #### Así, eliminamos masa y nos quedamos solo con perc.lactose
 
-### Usando add1
+### Usando drop1
 lm_backward <- lm(kcal.per.g ~ ., data = leche_primates_num)
 drop1(lm_backward, ~ perc.fat + perc.lactose + mass + neocortex.perc,
      data = leche_primates_num, test = 'F')
@@ -263,6 +264,6 @@ shapiro.test(std_resid_leche)
 
 ## Gráficos que entrega R
 plot(lm_backward)
-ggplot2::autoplot(lm_backward)
+ggplot2::autoplot(lm_backward) # requiere ggfortify
 
 summary(lm_backward)
