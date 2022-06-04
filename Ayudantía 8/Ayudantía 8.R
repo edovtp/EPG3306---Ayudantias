@@ -3,7 +3,6 @@ library(patchwork)
 library(nls2)
 library(nlstools)
 library(nlsMicrobio)
-library(PLRModels)
 
 
 # Ayudantía 1 -----------------------------------------------------------------------
@@ -193,4 +192,100 @@ plot_without_lag / plot_jameson_buchanan
 anova(model_jw, model_jb)
 
 # Ayudantía 2 -----------------------------------------------------------------------
+## a) Cargamos la base de datos
+load('Datasets/bone.rda')
 
+head(bone)
+colnames(bone)
+
+ggplot(data = bone, mapping = aes(x = age, y = rspnbmd)) +
+  geom_point(size = 3, col = 'blue') +
+  labs(title = 'Relación de la edad y la densidad mineral ósea relativa',
+       x = 'Edad', y = 'Densidad mineral ósea relativa') +
+  theme_minimal()
+
+## b) Función promedios locales
+
+local_means_regression <- function(x, y, h){
+  # Creamos la matriz L de suavizamiento
+  # Recordar que Y_hat = LY
+  n <- length(x)
+  L <- matrix(0, nrow = n, ncol = n)
+  indices <- seq(1, n, 1)
+  
+  for (i in 1:n){
+    # Vemos cuales observaciones están en la vecindad
+    Bx <- indices[abs(x - x[i]) <= h]
+    # Número de observaciones en la vecindad
+    nx <- length(Bx)
+    
+    # Solo las observaciones vecinas reciben peso 1/nx
+    L[i, Bx] <- 1/nx
+  }
+  
+  # Obtenemos los valores ajustados
+  r_hat <- L %*% y
+  return(r_hat)
+}
+
+## c)
+valores_ajustados <- local_means_regression(bone$age, bone$rspnbmd, h = 1)
+bone_va <- cbind(bone, valores_ajustados)
+ggplot(data = bone_va, mapping = aes(x = age, y = rspnbmd)) +
+  geom_point(size = 3, col = 'blue') +
+  geom_point(mapping = aes(x = age, y = valores_ajustados)) +
+  labs(title = 'Relación de la edad y la densidad mineral ósea relativa',
+       x = 'Edad', y = 'Densidad mineral ósea relativa') +
+  theme_minimal()
+
+grafico_h_va <- function(h){
+  valores_ajustados <- local_means_regression(bone$age, bone$rspnbmd, h = h)
+
+  cbind(bone, valores_ajustados) %>% 
+    ggplot(mapping = aes(x = age, y = rspnbmd)) +
+      geom_point(size = 3, col = 'blue') +
+      geom_point(mapping = aes(x = age, y = valores_ajustados)) +
+      labs(title = 'Relación de la edad y la densidad mineral ósea relativa',
+           subtitle = paste0('Ancho = ', as.character(h)),
+           x = 'Edad', y = 'Densidad mineral ósea relativa') +
+      theme_minimal()
+}
+
+grafico_h_va(1)
+grafico_h_va(2)
+grafico_h_va(4)
+grafico_h_va(10)
+grafico_h_va(20)
+
+grafico_h_global <- function(h, n_seq=0.01){
+  # Nuevos datos y vector en que guardaremos los valores ajustados
+  x <- seq(min(bone$age), max(bone$age), n_seq)
+  rx <- vector(mode = 'numeric', length = length(x))
+  
+  # Gráfico base
+  base <- ggplot(data = bone, mapping = aes(x = age, y = rspnbmd)) +
+    geom_point(size = 3, col = 'blue')
+  
+  
+  indices <- seq(1, length(bone$age), 1)
+  for (i in 1:length(x)){
+    Bx <- indices[abs(x[i] - bone$age) <= h]
+    rx[i] <- mean(bone$rspnbmd[Bx])
+  }
+  
+  datos_nuevos <- as.data.frame(cbind(x, rx))
+  
+  plot_final <- base +
+    geom_line(data = datos_nuevos, mapping = aes(x = x, y = rx),
+              col = 'red', lwd = 1.5) +
+    labs(title = 'Relación de la edad y la densidad mineral ósea relativa',
+         subtitle = paste0('Ancho = ', as.character(h)),
+         x = 'Edad', y = 'Densidad mineral ósea relativa') +
+    theme_minimal()
+  
+  plot_final
+}
+
+grafico_h_global(1)
+grafico_h_global(3)
+grafico_h_global(10)
