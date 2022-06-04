@@ -1,3 +1,7 @@
+library(nls2)
+library(nlstools)
+
+
 # Problema 1 ------------------------------------------------------------------------
 
 ## a) Carga de datos y gráfico de dispersión
@@ -50,20 +54,20 @@ summary(mod)
 
 # Problema 2 ------------------------------------------------------------------
 
-## a)
+## a) Carga de datos y análisis exploratorio
 
 x <- c(9, 14, 21, 28, 42, 57, 63, 70, 79)
 y <- c(8.93, 10.8, 18.59, 22.33, 39.35, 56.11, 61.73, 64.62, 67.08)
-datos <- as.data.frame(cbind(x,y))
+datos <- as.data.frame(cbind(x, y))
 
-plot(x,y, xlab = "",
+plot(x, y, xlab = "",
      ylab = "",
      las = 1,
      bty = "n",
      pch = 19,
      main = "Tiempo vs. Rendimiento")
 
-# Modelo lineal clásico
+### Modelo lineal clásico
 
 modelo_lineal <- lm(y ~ x)
 abline(modelo_lineal)
@@ -76,22 +80,27 @@ plot(y.hat, residuos, type = "l")
 
 # No es adecuado ajustar un modelo lineal.
 
-# Parte b) 
+## b) Modelos no lineales
+### Modelo de crecimiento logístico
 
-# Modelo de crecimiento logístico
-
-f.cl <- function(x,alpha,beta,k){
- return(alpha/(1+beta*exp(-k*x)))
+f.cl <- function(x, alpha, beta, k){
+ return(alpha/(1 + beta*exp(-k*x)))
 }
 
-curve(f.cl(x,90,9,0.04), add = T) # pueden servir de partida
+plot(x, y, xlab = "",
+     ylab = "",
+     las = 1,
+     bty = "n",
+     pch = 19,
+     main = "Tiempo vs. Rendimiento")
+curve(f.cl(x, 90, 9, 0.04), add = T) # pueden servir de partida
 
-# beta = depende del tamaño inicial de la población.
-# x = 0 -> f = alpha/(1+beta)
-# jugar con k.
+### beta = depende del tamaño inicial de la población.
+### x = 0 -> f = alpha/(1+beta)
+### jugar con k.
 
-modelo_cl  <- nls(y ~ alpha/(1+beta*exp(-k*x)),
-                 start=list(alpha = 90,beta = 9, k = 0.04))
+modelo_cl  <- nls(y ~ alpha/(1 + beta*exp(-k*x)),
+                 start=list(alpha=90, beta=9, k=0.04))
 coef(modelo_cl)
 summary(modelo_cl)
 
@@ -99,20 +108,18 @@ alpha <- coef(modelo_cl)[1]
 beta  <- coef(modelo_cl)[2]
 k     <- coef(modelo_cl)[3]
 
-curve(f.cl(x,alpha,beta,k), add = T, col = "red")
+curve(f.cl(x, alpha, beta, k), add = T, col = "red")
 
-# Parte c)
+## c) Modelo Weibull
 
-# Modelo Weibull
-
-f.w    <- function(x,theta1,theta2,theta3,theta4){
- return(theta1- theta2*exp(-exp(theta3+theta4*log(x))))
+f.w <- function(x, theta1, theta2, theta3, theta4){
+ return(theta1- theta2*exp(-exp(theta3 + theta4*log(x))))
 }
 
-# Parte d)
+## d) Ajuste Modelo Weibull
 
-modelo_w  <- nls2(y ~ theta1- theta2*exp(-exp(theta3+theta4*log(x))),start=list(theta1=90,theta2=65,theta3=-9, theta4 = 2))
-
+modelo_w  <- nls2(y ~ theta1 - theta2*exp(-exp(theta3 + theta4*log(x))),
+                  start=list(theta1=90, theta2=65, theta3=-9, theta4=2))
 coef(modelo_w)
 
 theta1 <- coef(modelo_w)[1]
@@ -120,27 +127,23 @@ theta2 <- coef(modelo_w)[2]
 theta3 <- coef(modelo_w)[3]
 theta4 <- coef(modelo_w)[4]
 
-curve(f.w(x,theta1,theta2,theta3,theta4), add = T, col = "blue")
+curve(f.w(x, theta1, theta2, theta3, theta4), add=T, col="blue")
 summary(modelo_w)
 
-# Parte e)
+## e) Análisis de supuestos
+### Función de media bien especificada:
 
-# Análisis de supuestos:
-
-# Función de media bien especificada:
-
-library(nlstools)
 residuos_cl <- nlsResiduals(modelo_cl)
 residuos_w  <- nlsResiduals(modelo_w)
 plot(residuos_cl, which = 1)
 plot(residuos_w, which = 1)
 
-# Homocedasticidad:
+### Homocedasticidad:
 
 plot(residuos_cl, which = 2)
 plot(residuos_w, which = 2)
 
-# Distr. Normal
+### Distribución Normal
 
 r_cl <- residuos_cl$resi2[,2]
 r_w  <- residuos_w$resi2[,2]
@@ -151,4 +154,4 @@ r_w[abs(r_w) >= qnorm(0.975)]
 plot(residuos_cl, which = 6)
 plot(residuos_w, which = 6)
 
-AIC(modelo_cl,modelo_w)
+AIC(modelo_cl, modelo_w)
