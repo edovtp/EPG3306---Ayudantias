@@ -33,9 +33,9 @@ jameson_wl <- function(t, y0, mu_max, t_max){
   
   y_t <- y0 + aux
   return(y_t)}
-jameson_wl <- Vectorize(jameson_wl)
 
 jameson_bu <- function(t, y0, mu_max, t_max, lambda){
+  # browser()
   if (t < lambda){
     aux <- 0
   } else if (t < t_max){
@@ -47,6 +47,9 @@ jameson_bu <- function(t, y0, mu_max, t_max, lambda){
   y_t <- y0 + aux
   return(y_t)
 }
+
+### Necesitamos que las funciones sean vectorizadas
+jameson_wl <- Vectorize(jameson_wl)
 jameson_bu <- Vectorize(jameson_bu)
 
 ## c) Ajuste de modelos
@@ -82,7 +85,7 @@ competition1 %>%
                                               lambda = 1.56, t_max = 12.59),
                 col = 'blue', lwd = 1.7, lty = 'dashed') +
   labs(title = 'Modelo de regresión no lineal ajustado',
-       subtitle = 'Flora 1 - Sin lag',
+       subtitle = 'Flora 1',
        x = 'Tiempo (horas)', y = 'Densidad bacterial (log10)') +
   theme_minimal()
 
@@ -124,7 +127,7 @@ competition1 %>%
                                               lambda = 3.02, t_max = 12.19),
                 col = 'blue', lwd = 1.7, lty = 'dashed') +
   labs(title = 'Modelo de regresión no lineal ajustado',
-     subtitle = 'Flora 2 - Sin lag',
+     subtitle = 'Flora 2',
      x = 'Tiempo (horas)', y = 'Densidad bacterial (log10)') +
   theme_minimal()
 
@@ -191,7 +194,7 @@ plot_without_lag / plot_jameson_buchanan
 #### Test de hipótesis
 anova(model_jw, model_jb)
 
-# Ayudantía 2 -----------------------------------------------------------------------
+# Ejercicio 2 -----------------------------------------------------------------------
 ## a) Cargamos la base de datos
 load('Datasets/bone.rda')
 
