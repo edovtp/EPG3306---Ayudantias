@@ -97,74 +97,81 @@ names(resultados_cv)
 resultados_cv$h.opt ; h0
 
 # Pregunta 2 ------------------------------------------------------------------------
-## a)
+## a) Gráfico de dispersión
+datos_oro <- read.csv2('Datasets/oro20172018.csv', sep=";")
+names(datos_oro)
 
-datos <- read.csv2("oro20172018.csv",sep=";")
-names(datos)
-
-datos$Oro   <- as.numeric(datos$Oro)
-datos$Fecha <- as.Date(datos$Fecha,"%d-%m-%Y")
-plot(datos$Fecha,datos$Oro,
+datos_oro$Oro   <- as.numeric(datos_oro$Oro)
+datos_oro$Fecha <- as.Date(datos_oro$Fecha, "%d-%m-%Y")
+plot(datos_oro$Fecha, datos_oro$Oro,
      xlab = "Fecha",
-     ylab = "Valor del Oro",
+     ylab = "Valor del Oro (USD)",
+     main = 'Evolución del precio del oro a través del tiempo',
      pch = 19)
 
-# b 
+## b) Polinomios locales grado 0 
 
 h  <- 40 # ir probando de 30 en adelante.
-lines(ksmooth(datos$Fecha, datos$Oro, kernel="normal", bandwidth = h), col="green", lwd=2)
-lines(ksmooth(datos$Fecha, datos$Oro, kernel="box", bandwidth = h), col="orange", lwd=2)
+lines(ksmooth(datos_oro$Fecha, datos_oro$Oro, kernel="normal", bandwidth=h),
+      col="green", lwd=2)
+lines(ksmooth(datos_oro$Fecha, datos_oro$Oro, kernel="box", bandwidth=h),
+      col="orange", lwd=2)
 
-# No se mucha diferencia, pero el gaussiano tiene una curva más suave.
+### No se ve mucha diferencia, pero el gaussiano tiene una curva más suave.
 
-# c
+## c) Polinomios locales
 
-h      <- 50 # jugar con h.
-x      <- as.numeric(datos$Fecha)
-y      <- datos$Oro
-x2     <- x^2
-Kernel <- function(x){return(dnorm(x,0,1))
-}
-n      <-length(x)
-r0.x   <-NULL
-r1.x   <-NULL
-r2.x   <-NULL
+h                <- 50 # jugar con h.
+fecha            <- as.numeric(datos_oro$Fecha)
+precio_oro       <- datos_oro$Oro
+fecha2           <- fecha^2
+kernel_gaussiano <- function(x){return(dnorm(x, 0, 1))}
+
+n          <- length(fecha)
+r0.fecha   <- NULL
+r1.fecha   <- NULL
+r2.fecha   <- NULL
 
 for(i in 1:n){
- w       <- Kernel((x[i] - x)/h)
- modelo0 <- lm(y ~ 1, weights=w)	
- modelo1 <- lm(y ~ x, weights=w)	
- modelo2 <- lm(y ~x + x2, weights=w)	
+ w       <- kernel_gaussiano((fecha[i] - fecha)/h)
+ modelo0 <- lm(precio_oro ~ 1, weights=w)	
+ modelo1 <- lm(precio_oro ~ fecha, weights=w)	
+ modelo2 <- lm(precio_oro ~ fecha + fecha2, weights=w)	
  
- r0.x[i]<-fitted(modelo0)[i]
- r1.x[i]<-fitted(modelo1)[i]
- r2.x[i]<-fitted(modelo2)[i]
+ r0.fecha[i]<-fitted(modelo0)[i]
+ r1.fecha[i]<-fitted(modelo1)[i]
+ r2.fecha[i]<-fitted(modelo2)[i]
 }
 
-plot(datos$Fecha,datos$Oro,
+plot(datos_oro$Fecha, datos_oro$Oro,
      xlab = "Fecha",
-     ylab = "Valor del Oro",
+     ylab = "Valor del Oro (USD)",
+     main = 'Evolución del precio del oro a través del tiempo',
      pch = 19)
 
-lines(sort(x),r0.x[order(x)], col="red", lwd = 2)
-lines(sort(x),r1.x[order(x)], col="cyan", lwd = 2)
-lines(sort(x),r2.x[order(x)], col="pink", lwd = 2)
+lines(sort(fecha), r0.fecha[order(fecha)], col="red", lwd = 3)
+lines(sort(fecha), r1.fecha[order(fecha)], col="cyan", lwd = 3)
+lines(sort(fecha), r2.fecha[order(fecha)], col="pink", lwd = 3)
 
-legend("bottomleft",col=c("red","cyan","pink"),c("p = 0","p = 1","p = 2"),lty=1,lwd=2)
+legend("topright", title = 'Grado polinomio',
+       col= c("red", "cyan", "pink"),
+       legend = c("grado 0", "grado 1", "grado 2"),
+       lty=1, lwd=3)
 
-# Los tres se comportan bastante bien, hay más efecto en los extremos.
+### Los tres se comportan bastante bien, hay más efecto en los extremos.
 
-# d)
+## d) LOESS
 
-plot(datos$Fecha,datos$Oro,
+plot(datos_oro$Fecha, datos_oro$Oro,
      xlab = "Fecha",
-     ylab = "Valor del Oro",
+     ylab = "Valor del Oro (USD)",
+     main = 'Evolución del precio del oro a traveś del tiempo',
      pch = 19)
 
-# span: parámetro de suavizamiento de la curva.
+### span: parámetro de suavizamiento de la curva.
 
-modelo1 <- loess(y ~ x,span = 0.1,degree = 1)
-lines(x, modelo1$fitted, lwd = 2, col = "red")
+modelo1 <- loess(precio_oro ~ fecha, span = 0.1, degree = 1)
+lines(fecha, modelo1$fitted, lwd = 3, col = "red")
 
-modelo2 <- loess(y ~ x, span = 0.1,degree=2)
-lines(x, modelo2$fitted, lwd = 2, col = "blue")
+modelo2 <- loess(precio_oro ~ fecha, span = 0.1, degree=2)
+lines(fecha, modelo2$fitted, lwd = 3, col = "blue")
